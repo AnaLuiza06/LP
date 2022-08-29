@@ -1,0 +1,339 @@
+
+import 'package:flutter/material.dart';
+import 'PedidoPronto.dart';
+
+void main(){
+  runApp(
+      MaterialApp(
+        //home: CampoTextoNovo(),
+        home: MyForm(),
+        debugShowCheckedModeBanner: false,
+      )
+  );
+}
+
+class MyForm extends StatefulWidget{
+  @override
+  _HomeState createState() => _HomeState();
+}
+
+class _HomeState extends State<MyForm>{
+  bool? _sabor1 = false;
+  bool? _sabor2 = false;
+  bool? _sabor3 = false;
+  int? _escolhaBorda;
+  double quantidade = 1;
+  String label = "1";
+  bool _entregar = false;
+
+  String _saborescolhido = "";
+
+
+
+  void _escolhersabor(){
+    if(_sabor1 == true){
+      Padding(//padding do texto do resultado
+        padding: EdgeInsets.only(top: 20),//alinhamento superior
+        child: Text(
+          "Muçarela",
+          style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold
+          ),
+        ),
+      );
+    }
+    if(_sabor2 == true){
+      _saborescolhido = "Portuguesa";
+    }
+    if(_sabor3 == true){
+      _saborescolhido = "Calabresa";
+    }
+  }
+
+  void _fazerpedido(){
+    if( precoAlcool == null || precoGasolina == null ){
+      setState(() {//atualiza tela em tempo real
+        _textoResultado = "Número inválido, digite números maiores que 0 e utilizando (.) ";
+      });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("MyForm"),
+        backgroundColor: Colors.red,
+      ),
+
+      body: SingleChildScrollView(
+        child: Column(
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.only(top: 35, bottom: 20),
+                child: Text(
+                  "Meu Pedido",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red
+                  ),
+                ),
+              ),
+
+              Container(
+                child: Column(
+                    children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.only(left: 20, bottom: 10, top: 30),
+                        child: Text(
+                          "Opções",
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                            fontSize: 20,
+                            //color: Colors.red
+                          ),
+                        ),
+                      ),
+                      CheckboxListTile(
+                          title: Text("Muçarela"),
+                          subtitle: Text("Ingredientes"), //Subtitulo//subtexto
+                          activeColor: Colors.red, //cor da caixa de seleção marcado/desmarcado
+                          //selected: true, //marcar texto da caixa de seleção como marcado/desmarcado
+                          //secondary: Icon(Icons..add_box),//definir ícone que aparecerá antes do texto
+                          value: _sabor1,
+                          onChanged: (bool? valor){
+                            setState(() {
+                              _sabor1 = valor;
+                            });
+                          }
+                      ),
+
+                      CheckboxListTile(
+                          title: Text("Portuguesa"),
+                          subtitle: Text("Ingredientes"), //Subtitulo//subtexto
+                          activeColor: Colors.red, //cor da caixa de seleção marcado/desmarcado
+                          //selected: true, //marcar texto da caixa de seleção como marcado/desmarcado
+                          //secondary: Icon(Icons..add_box),//definir ícone que aparecerá antes do texto
+                          value: _sabor2,
+                          onChanged: (bool? valor){
+                            setState(() {
+                              _sabor2 = valor;
+                            });
+                          }
+                      ),
+
+                      CheckboxListTile(
+                          title: Text("Calabresa"),
+                          subtitle: Text("Ingredientes"), //Subtitulo//subtexto
+                          activeColor: Colors.red, //cor da caixa de seleção marcado/desmarcado
+                          //selected: true, //marcar texto da caixa de seleção como marcado/desmarcado
+                          //secondary: Icon(Icons..add_box),//definir ícone que aparecerá antes do texto
+                          value: _sabor3,
+                          onChanged: (bool? valor){
+                            setState(() {
+                              _sabor3 = valor;
+                            });
+                          }
+                      ),
+
+                      Padding(
+                        padding: EdgeInsets.only(left: 20, bottom: 10, top: 30),
+                        child: Text(
+                          "Bordas",
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                            fontSize: 20,
+                            //color: Colors.red
+                          ),
+                        ),
+                      ),
+                      RadioListTile(
+                          title: Text("Catupiri") ,//titulo da lista
+                          value: 1, //tipo do valor do campo
+                          groupValue: _escolhaBorda, // tipo do grupo
+                          onChanged: (int? escolha){
+                            setState(() {
+                              _escolhaBorda = escolha;
+                            });
+                          }
+                      ),
+                      RadioListTile(
+                          title: Text("Cheddar") ,//titulo da lista
+                          value: 2, //tipo do valor do campo
+                          groupValue: _escolhaBorda, // tipo do grupo
+                          onChanged: (int? escolha){
+                            setState(() {
+                              _escolhaBorda = escolha;
+                            });
+                          }
+                      ),
+
+                      Padding(
+                        padding: EdgeInsets.only(left: 20, bottom: 10, top: 30),
+                        child: Text(
+                          "Quantidade",
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                            fontSize: 20,
+                            //scolor: Colors.red
+                          ),
+                        ),
+                      ),
+                      Slider(
+                          value: quantidade,//valor inicial do campo
+                          min: 1, // valor minimo
+                          max: 10, // valor maximo
+                          label: label, // texto que acompanha a seleção//só funciona junto com as divisões abaixo
+                          divisions: 9, // quantidade de opções disponíveis para o usuario selecionar//senao ele pega todos valores no intervalo
+                          activeColor: Colors.red, // cor do slider
+                          inactiveColor: Colors.deepOrangeAccent, //cor da linha do slides//o que não esta selecionado
+                          onChanged: (double novoValor){
+                            setState(() {
+                              quantidade = novoValor;
+                              label = novoValor.toString() ; //altero o valor que acompanha o label de forma automática
+                            });
+                            //print("Valor selecionado: " + novoValor.toString() );
+                          }
+                      ),
+                    ]
+                ),
+              ),
+
+              Padding(
+                padding: EdgeInsets.only(left: 20, bottom: 10, top: 30),
+                child: Text(
+                  "Cliente e Entrega",
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                    fontSize: 32,
+                    //color: Colors.red
+                  ),
+                ),
+              ),
+
+              Container(
+                  child: Column(
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.only(left: 30, bottom: 20, right: 30),
+                          child: TextField(
+                            //text, number, emailAddress, datetime
+                              keyboardType: TextInputType.text,
+                              decoration: InputDecoration(
+                                  labelText: "Nome"
+                              ),
+                              //enabled: false,
+                              //maxLength: 2,
+                              //maxLengthEnforced: false,
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.red
+                              )
+                          ),
+                        ),
+                        SwitchListTile(
+                          //se o cliente desejar a entrega deverá ser inserido o campo de endereço
+                            title: Text("Entregar"),
+                            value: _entregar,
+                            onChanged: (bool valor){
+                              if(_entregar == true){
+                                Column(
+                                    children: <Widget>[
+                                      Padding(
+                                        padding: EdgeInsets.all(20),
+                                        child: TextField(
+                                          //text, number, emailAddress, datetime
+                                          keyboardType: TextInputType.text,
+                                          decoration: InputDecoration(
+                                              labelText: "Endereço"
+                                          ),
+                                          //enabled: false,
+                                          //maxLength: 2,
+                                          //maxLengthEnforced: false,
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              color: Colors.red
+                                          ),
+                                          //obscureText: true,
+
+                                        ),
+                                      ),
+                                    ] );
+                              }
+                              else{
+                                Column(
+                                    children: <Widget>[
+                                      Padding(
+                                        padding: EdgeInsets.all(10),
+                                      ),
+                                    ] );
+                              }
+                            }
+                        ),
+                      ]
+                  )
+              ),
+
+              RaisedButton(
+                color: Colors.red,
+                textColor: Colors.white,
+                padding: EdgeInsets.all(15),
+                child: Text(
+                  "Calcular",
+                  style: TextStyle(
+                      fontSize: 20//tamanho do texto do botão
+                  ),
+                ),
+                onPressed: _fazerpedido
+              ),
+
+              Container(
+                  child: Column(
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.only(left: 30, bottom: 20, right: 30),
+                          child: TextField(
+                            //text, number, emailAddress, datetime
+                              keyboardType: TextInputType.text,
+                              decoration: InputDecoration(
+                                  labelText: "Pedido Feito"
+                              ),
+                              //enabled: false,
+                              //maxLength: 2,
+                              //maxLengthEnforced: false,
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.red
+                              )
+                          ),
+                        ),
+
+                        Padding(
+                          padding: EdgeInsets.only(left: 30, bottom: 20, right: 30),
+                          child: TextField(
+                            //text, number, emailAddress, datetime
+                              keyboardType: TextInputType.text,
+                              decoration: InputDecoration(
+                                  labelText: "Nome"
+                              ),
+                              //enabled: false,
+                              //maxLength: 2,
+                              //maxLengthEnforced: false,
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.red
+                              )
+                          ),
+                        ),
+                      ]
+                  )
+              ),
+            ]
+        ),
+      )
+
+    );
+  }
+}
