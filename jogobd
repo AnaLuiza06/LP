@@ -1,0 +1,200 @@
+import 'package:flutter/material.dart';
+import 'dart:math' as Math;
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
+
+void main() => runApp(
+    MaterialApp(
+      home: Home(),
+    )
+);
+
+class Home extends StatefulWidget {
+  @override
+  _HomeState createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  TextEditingController _nome1 = TextEditingController();
+  TextEditingController _nome2 = TextEditingController();
+  double valor1 = 1.0;
+  double valor2 = 1.0;
+  String label1 = "0";
+  String label2 = "0";
+  var resultado = 0.0;
+
+  _recuperarBancoDados() async {
+    final caminhoBancoDados = await getDatabasesPath(); //recupera o caminho do banco no celular do usuario
+    final localBancoDados = join(caminhoBancoDados, "banco.db"); // nome do banco de dados a ser recuperado/utilizado
+
+    var bancodados = await openDatabase(
+        localBancoDados, // Banco de dados utilizado
+        version: 1, //Eu crio a versao de acordo com meu APP
+        onCreate: (db, dbVersaoRecente){ //db permite manipular o banco
+          String sql = "CREATE TABLE partidas (id INTEGER PRIMARY KEY AUTOINCREMENT, jogador1 VARCHAR, jogador2 VARCHAR, valor1 double, valor2 double,  resultado double) ";
+          db.execute(sql);
+        }
+    );
+    return bancodados;
+    //print("aberto: " + bd.isOpen.toString() );
+  }
+
+  salvar() async {
+    Database bancodados = await _recuperarBancoDados();
+    Map<String, dynamic> dadosUsuario = {
+      "jogador1" : _nome1.text,
+      "jogador2" : _nome2.text,
+      "valor1" : valor1,
+      "valor2" : valor2,
+      "resultado": resultado
+    };
+    int id = await bancodados.insert("partidas", dadosUsuario);
+    print("Salvo: $id " );
+  }
+
+  _listarUsuarios() async {
+    Database bd = await _recuperarBancoDados();
+    String sql = "SELECT * FROM partidas ";//ASC, DESC
+    List partidas = await bd.rawQuery(sql);
+
+    for( var partida in partidas ){
+      print(
+          "item id: " + partida['id'].toString() +
+              "Jogador1" + partida['jogador1'] +
+              "Jogador2" + partida['jogador2'] +
+              " Valor1: " + partida['valor1'].toString() +
+              " Valor2: " + partida['valor2'].toString() +
+              "Resultado: " + partida['resultado'].toString()
+      );
+    }
+    //print("usuarios: " + usuarios.toString() );
+  }
+
+  void jogar(){
+    var aleatorio = Math.Random().nextInt(2);
+    // se 1 -> escolhe maior, senão menor
+    if(aleatorio == 1) {
+      resultado = Math.max(valor1, valor2);
+      print("Maior");
+    } else {
+      resultado = Math.min(valor1, valor2);
+      print("Menor");
+    }
+    print(resultado);
+
+    salvar();
+    _listarUsuarios();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Modelo Cadastro"),
+        backgroundColor: Colors.deepOrange,
+      ),
+      body: Container(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+
+              Padding(
+                padding: EdgeInsets.only(bottom: 10),//espaçamento inferior
+                child: Text(
+                  "Cadastro do Usuário",
+                  style: TextStyle(//formataçãoo de fonte
+                      fontSize: 35,
+                      fontWeight: FontWeight.bold
+                  ),
+                ),
+              ),
+
+              TextField(
+                keyboardType: TextInputType.text,//caixa de número somente com .
+                decoration: InputDecoration(
+                    labelText: "Nome Jogador 1"//texto padrão do campo
+                ),
+                style: TextStyle(//formatação da fonte
+                    fontSize: 22
+                ),
+                controller: _nome1,//pegando valor do campo alcool
+              ),
+
+              TextField(
+                keyboardType: TextInputType.number,//caixa de número somente com .
+                decoration: InputDecoration(
+                    labelText: "Nome Jogador 2"//texto padrão do campo
+                ),
+                style: TextStyle(//formatação da fonte
+                    fontSize: 22
+                ),
+                controller: _nome2,//pegando valor do campo alcool
+              ),
+
+
+              Padding(
+                padding: EdgeInsets.only(left: 20, bottom: 10, top: 30),
+                child: Text(
+                  "Escolha um número",
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                    fontSize: 20,
+                    //scolor: Colors.red
+                  ),
+                ),
+              ),
+              Slider(
+                  value: valor1,//valor inicial do campo
+                  min: 1, // valor minimo
+                  max: 10, // valor maximo
+                  label: label1, // texto que acompanha a seleção//só funciona junto com as divisões abaixo
+                  divisions: 9, // quantidade de opções disponíveis para o usuario selecionar//senao ele pega todos valores no intervalo
+                  activeColor: Colors.red, // cor do slider
+                  inactiveColor: Colors.deepOrangeAccent, //cor da linha do slides//o que não esta selecionado
+                  onChanged: (double novoValor){
+                    setState(() {
+                      valor1 = novoValor;
+                      label1 = novoValor.toString() ; //altero o valor que acompanha o label de forma automática
+                    });
+                    //print("Valor selecionado: " + novoValor.toString() );
+                  }
+              ),
+
+              Slider(
+                  value: valor2,//valor inicial do campo
+                  min: 1, // valor minimo
+                  max: 10, // valor maximo
+                  label: label2, // texto que acompanha a seleção//só funciona junto com as divisões abaixo
+                  divisions: 9, // quantidade de opções disponíveis para o usuario selecionar//senao ele pega todos valores no intervalo
+                  activeColor: Colors.red, // cor do slider
+                  inactiveColor: Colors.deepOrangeAccent, //cor da linha do slides//o que não esta selecionado
+                  onChanged: (double novoValor){
+                    setState(() {
+                      valor2 = novoValor;
+                      label2 = novoValor.toString() ; //altero o valor que acompanha o label de forma automática
+                    });
+                    //print("Valor selecionado: " + novoValor.toString() );
+                  }
+              ),
+
+              RaisedButton(
+                  color: Colors.red,
+                  textColor: Colors.white,
+                  padding: EdgeInsets.all(15),
+                  child: Text(
+                    "Jogar",
+                    style: TextStyle(
+                        fontSize: 20//tamanho do texto do botão
+                    ),
+                  ),
+                  onPressed: jogar
+              ),
+            ],
+          ),
+        ),
+      ),// This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+}
